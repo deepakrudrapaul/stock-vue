@@ -17,6 +17,6 @@ export class DataService {
   }
 
   getOiData(date: string) { 
-    return this.supabase?.from("bhavcopy").select("*").filter('timestamp', 'eq', date).order('id', {ascending: false}).single()
+    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).gte('oneDayOiChange', 10);
   }
 }
