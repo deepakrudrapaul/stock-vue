@@ -19,4 +19,9 @@ export class DataService {
   getOiData(date: string) { 
     return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).gte('oneDayOiChange', 10);
   }
+
+
+  getStockOiData(symbol: string) { 
+    return this.supabase?.from("openInterest").select("*").eq('symbol', symbol).order("timestamp", {ascending:false});
+  }
 }
