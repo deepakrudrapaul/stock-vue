@@ -1,11 +1,11 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from 'src/environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DataService {
+export class HomeService {
 
   private baseUrl: string = environment.API_ENDPOINT;
   private apiKey: string = environment.SUPABASE_KEY;
@@ -16,12 +16,19 @@ export class DataService {
     this.supabase = new SupabaseClient(this.baseUrl, this.apiKey);
   }
 
-  getOiData(date: string) { 
+  getOiGainersData(date: string) { 
     return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).gte('oneDayOiChange', 10);
+  }
+
+  getOiLosersData(date: string) { 
+    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).lte('oneDayOiChange', -10);
   }
 
 
   getStockOiData(symbol: string) { 
     return this.supabase?.from("openInterest").select("*").eq('symbol', symbol).order("timestamp", {ascending:false});
   }
+
+
+
 }
