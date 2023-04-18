@@ -1,37 +1,9 @@
-<div class="navbar bg-base-100">
-    <div class="navbar-start">
-            <select class="select select-bordered mr-3 max-w-xs"  (ngModelChange)="onStockChange($event)" [(ngModel)]="currentStock">
-              <option value="null" disabled selected>Select Stock</option>
-              <option [ngValue]="item" *ngFor="let item of stockList">{{item}}</option>
-            </select>
 
-      <input [(ngModel)]="currentDate" type="date" placeholder="Type here" class="input input-bordered  max-w-xs" />
+
+<section class="m-3 py-3">
+    <app-oi-table [title]="'Index'" [isLoading]="isLoading" [list]="indexOiList"></app-oi-table>
+    <div class="columns-2 my-3">
+      <app-oi-table [title]="'OI Gainers'" [isLoading]="isLoading" [list]="oiGainersList"></app-oi-table>
+      <app-oi-table [title]="'OI Losers'" [isLoading]="isLoading" [list]="oiLosersList"></app-oi-table>
     </div>
-    <div class="navbar-center hidden lg:flex">
-      <a class="btn btn-ghost normal-case text-xl">Stock Vue</a>
-      <!-- <ul class="menu menu-horizontal px-1">
-        <li><a>Item 1</a></li>
-        <li tabindex="0">
-          <ul class="p-2">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </li>
-        <li><a>Item 3</a></li>
-      </ul> -->
-    </div>
-    <div class="navbar-end">
-      <!-- <a class="btn">Login</a> -->
-    </div>
-</div>
-
-
-
-
-
-
-
-<div class="columns-2">
-  <app-oi-table [title]="'OI Gainers'" [isLoading]="isLoading" [list]="oiGainersList"></app-oi-table>
-  <app-oi-table [title]="'OI Losers'" [isLoading]="isLoading" [list]="oiLosersList"></app-oi-table>
-</div>
+</section>

@@ -34,6 +34,7 @@ export class HomePageComponent {
 
   oiLosersList:any[] = [];
   oiGainersList:any[] = [];
+  indexOiList:any[] = [];
   isLoading: boolean = false;
 
   dummyData = [{"close": 40833.55, "symbol": "BANKNIFTY", "changeOi": 26474775, "timestamp": "2023-03-31", "lotsTraded": 57757754, "openInterest": 76277775}]
@@ -42,6 +43,7 @@ export class HomePageComponent {
     this.getLastTradingDate();
     this.getOiGainersData();
     this.getOiLosersData();
+    this.getIndexOiData();
   }
 
 
@@ -99,6 +101,18 @@ export class HomePageComponent {
       const res:any =  await this.dataService.getOiLosersData(this.currentDate);
       this.isLoading = false;
       this.oiLosersList = res.data;
+    } catch(error:any) {
+      this.isLoading = false;
+      alert(error?.message);
+    }
+  }
+
+  async getIndexOiData() {
+    this.isLoading = true;
+    try{
+      const res:any =  await this.dataService.getIndexOiData('NIFTY', this.currentDate);
+      this.isLoading = false;
+      this.indexOiList = res.data;
     } catch(error:any) {
       this.isLoading = false;
       alert(error?.message);

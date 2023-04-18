@@ -25,6 +25,11 @@ export class HomeService {
   }
 
 
+  getIndexOiData(symbol:string, date: string) {
+    return this.supabase?.from("openInterest").select("*").like('symbol', `%${symbol}%`).eq('timestamp', date);
+  }
+
+
   getStockOiData(symbol: string) { 
     return this.supabase?.from("openInterest").select("*").eq('symbol', symbol).order("timestamp", {ascending:false});
   }
