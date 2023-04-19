@@ -17,11 +17,11 @@ export class HomeService {
   }
 
   getOiGainersData(date: string) { 
-    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).gte('oneDayOiChange', 10);
+    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).gte('oneDayOiChange', 5).order('oneDayOiChange', {ascending:false}).limit(5);
   }
 
   getOiLosersData(date: string) { 
-    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).lte('oneDayOiChange', -10);
+    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).lte('oneDayOiChange', -5).order('oneDayOiChange', {ascending:true}).limit(5);
   }
 
 
