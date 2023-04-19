@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { HomeService } from '../../data-access/home.service';
 import { DateTime } from 'luxon';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { OiTableComponent } from '../ui/oi-table/oi-table.component';
+import { HomeService } from '../data-access/home.service';
 
 
 interface OiData {
@@ -14,6 +17,12 @@ interface OiData {
 }
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    OiTableComponent
+  ],
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss']
