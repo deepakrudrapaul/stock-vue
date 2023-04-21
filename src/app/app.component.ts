@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { AppConstants } from './shared/utils/app-constants';
 
 
 
@@ -10,5 +11,6 @@ import { Component, inject } from '@angular/core';
 
 export class AppComponent {
 
+  appConstants = AppConstants;
 
 }
