@@ -1,12 +1,13 @@
-<div class="card lg:card-side bg-base-100 shadow-xl">
+<div class="card lg:card-side bg-base-100 shadow-sm">
     <div class="card-body">
       <h2 class="card-title">{{title}}</h2>
       
 
       <div class="overflow-x-auto">
-        <table *ngIf="list.length" class="table table-zebra w-full">
+        <table *ngIf="list.length && !isLoading" class="table table-zebra w-full">
           <!-- head -->
           <thead>
+
             <tr>
               <th *ngFor="let header of headers">{{header}}</th>
             </tr>
@@ -17,11 +18,12 @@
               <td>{{item.symbol}}</td>
               <td>{{item.oneDayPriceChange}} %</td>
               <td>{{item.oneDayOiChange}} %</td>
+              <td>{{item.timestamp | date}}</td>
             </tr>
           </tbody>
         </table>
-        <div *ngIf="!list.length && isLoading">
-          Loading...
+        <div class="h-96 flex items-center justify-center" *ngIf="isLoading">
+          <app-spinner/>
         </div>
       </div>
     </div>
