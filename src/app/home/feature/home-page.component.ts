@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HomeService } from '../data-access/home.service';
 import { TableComponent } from 'src/app/shared/ui/table/table.component';
+import { getPreviousWeekdayDate } from 'src/app/shared/utils/utils';
 
 
 interface OiData {
@@ -57,7 +58,7 @@ export class HomePageComponent {
 
   setCurrentDate() {
     if(DateTime.now().hour < 18) {
-      this.currentDate = DateTime.fromJSDate(this.getPreviousWeekdayDate()).toFormat("yyyy-MM-dd"); 
+      this.currentDate = DateTime.fromJSDate(getPreviousWeekdayDate()).toFormat("yyyy-MM-dd"); 
     }
   }
 
@@ -67,23 +68,18 @@ export class HomePageComponent {
         this.currentDate = DateTime.now().minus({days: 1}).toFormat("yyyy-MM-dd");
       }
     } else{
-      const date  = this.getPreviousWeekdayDate();
+      const date  = getPreviousWeekdayDate();
       if(this.holidays.includes(DateTime.fromJSDate(date).toFormat("yyyy-MM-dd"))) {
         this.currentDate = DateTime.fromJSDate(date).minus({days: 1}).toFormat("yyyy-MM-dd");
+      } else{
+        this.currentDate = DateTime.fromJSDate(date).toFormat("yyyy-MM-dd");
       }
     }
     
   }
 
 
-  getPreviousWeekdayDate() {
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, etc.
-    const daysToSubtract = (dayOfWeek === 0 ? 2 : (dayOfWeek === 1 ? 3 : 1));
-    const previousWeekdayDate = new Date(today.getTime() - (daysToSubtract * 24 * 60 * 60 * 1000));
-    return previousWeekdayDate;
-  }
-
+ 
 
 
 
