@@ -28,9 +28,10 @@ export class OiScanComponent {
   
 
   constructor() {
-    this.getStockOiData(this.stockList[0]);
     this.stockList.sort();
     this.stockList.unshift(...['NIFTY', 'BANKNIFTY']);
+    this.currentStock = this.stockList[0];
+    this.getStockOiData(this.currentStock);
   }
 
   onStockChange(value:any) {

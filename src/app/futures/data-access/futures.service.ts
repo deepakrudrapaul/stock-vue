@@ -16,17 +16,12 @@ export class FuturesService {
     this.supabase = new SupabaseClient(this.baseUrl, this.apiKey);
   }
 
-  getOiGainersData(date: string) { 
-    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).gte('oneDayOiChange', 5).order('oneDayOiChange', {ascending:false}).limit(5);
+  getLongBuildupStocks(date: string) { 
+    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).gte('oneDayOiChange', 5).gte('oneDayPriceChange', 1).order('oneDayOiChange', {ascending:false}).limit(5);
   }
 
-  getOiLosersData(date: string) { 
-    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).lte('oneDayOiChange', -5).order('oneDayOiChange', {ascending:true}).limit(5);
-  }
-
-
-  getIndexOiData(symbol:string, date: string) {
-    return this.supabase?.from("openInterest").select("*").like('symbol', `%${symbol}%`).eq('timestamp', date);
+  getShortBuildupStocks(date: string) { 
+    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).lte('oneDayOiChange', -5).lte('oneDayPriceChange', 2).order('oneDayOiChange', {ascending:true}).limit(5);
   }
 
 
