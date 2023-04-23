@@ -11,6 +11,5 @@ import { AppConstants } from './shared/utils/app-constants';
 
 export class AppComponent {
 
-  appConstants = AppConstants;
 
 }
