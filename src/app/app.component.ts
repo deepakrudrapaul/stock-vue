@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { AppConstants } from './shared/utils/app-constants';
+import { DOCUMENT } from '@angular/common';
 
 
 
@@ -10,6 +10,13 @@ import { AppConstants } from './shared/utils/app-constants';
 })
 
 export class AppComponent {
+
+  document: Document = inject(DOCUMENT);
+
+
+  onThemeChange(value:Boolean) {
+    this.document.querySelector('html')?.setAttribute('data-theme', value ? 'dark' : 'light');
+  }
 
 
 }
