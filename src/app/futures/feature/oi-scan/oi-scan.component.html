@@ -1,10 +1,13 @@
 <section class="m-3 py-3">
     <div class="card mb-3 lg:card-side bg-base-100 shadow-sm">
-        <div class="card-body">
-            <select class="select select-bordered mr-3 max-w-xs"  (ngModelChange)="onStockChange($event)" [(ngModel)]="currentStock">
-                <option value="null" disabled selected>Select Stock</option>
+        <div class="card-body flex-row">
+            <select class="select select-bordered mr-3 max-w-xs"  (ngModelChange)="onStockChange($event,currentDate)" [(ngModel)]="currentStock">
+                <option value="{{null}}" selected>Select Stock</option>
                 <option [ngValue]="item" *ngFor="let item of stockList">{{item}}</option>
               </select>
+
+              <input [(ngModel)]="currentDate" type="date" placeholder="Type here" class="input input-bordered  max-w-xs" />
+
     
 
         </div>

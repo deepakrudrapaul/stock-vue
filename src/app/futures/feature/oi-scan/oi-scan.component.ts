@@ -31,18 +31,18 @@ export class OiScanComponent {
     this.stockList.sort();
     this.stockList.unshift(...['NIFTY', 'BANKNIFTY']);
     this.currentStock = this.stockList[0];
-    this.getStockOiData(this.currentStock);
+    this.getStockOiData(this.currentStock, this.currentDate);
   }
 
-  onStockChange(value:any) {
-    console.log(value, this.currentDate)
-    this.getStockOiData(value);
+  onStockChange(value:any, currentDate: any) {
+    console.log(value, currentDate)
+    this.getStockOiData(value ? value : "", currentDate);
   }
 
 
-  getStockOiData(value:any){
+  getStockOiData(value:any, currentDate: any){
     this.isLoading = true;
-    this.futureService.getStockOiData(value)?.then((res) => {
+    this.futureService.getStockOiData(value, currentDate)?.then((res) => {
       this.oiStockList = res.data as any;
       this.isLoading = false;
 

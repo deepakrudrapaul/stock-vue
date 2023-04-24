@@ -21,11 +21,19 @@ export class FuturesService {
   }
 
   getShortBuildupStocks(date: string) { 
-    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).lte('oneDayOiChange', -5).lte('oneDayPriceChange', 2).order('oneDayOiChange', {ascending:true}).limit(5);
+    return this.supabase?.from("openInterest").select("*").filter('timestamp', 'eq', date).lte('oneDayOiChange', -5).lte('oneDayPriceChange', 0).order('oneDayOiChange', {ascending:true}).limit(5);
   }
 
 
-  getStockOiData(symbol: string) { 
-    return this.supabase?.from("openInterest").select("*").eq('symbol', symbol).order("timestamp", {ascending:false});
+  getStockOiData(symbol: string, date: string) {
+    let query = this.supabase?.from("openInterest").select("*");
+    if(symbol) {
+      query?.eq('symbol', symbol)
+    }
+    if(date) {
+      query?.eq('timestamp', date)
+    }
+    return query?.order("timestamp", {ascending:false}).order("oneDayOiChange", {ascending:false}).order("close", {ascending:false});
   }
+
 }
