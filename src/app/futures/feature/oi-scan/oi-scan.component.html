@@ -6,7 +6,7 @@
                 <option [ngValue]="item" *ngFor="let item of stockList">{{item}}</option>
               </select>
 
-              <input [(ngModel)]="currentDate" type="date" placeholder="Type here" class="input input-bordered  max-w-xs" />
+              <input [(ngModel)]="currentDate" (ngModelChange)="onDateChange($event, currentStock)" type="date" placeholder="Type here" class="input input-bordered  max-w-xs" />
 
     
 

@@ -35,8 +35,12 @@ export class OiScanComponent {
   }
 
   onStockChange(value:any, currentDate: any) {
-    console.log(value, currentDate)
     this.getStockOiData(value ? value : "", currentDate);
+  }
+
+  onDateChange(value:any, currentStock:any) {
+    this.getStockOiData(currentStock, value);
+
   }
 
 
