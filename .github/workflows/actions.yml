@@ -1,4 +1,4 @@
-name: run cron.py
+name: run main.py
 
 on: 
   schedule:
