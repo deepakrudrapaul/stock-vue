@@ -1,6 +1,8 @@
 from supabase import create_client, Client
 import pandas as pd
 import numpy as np
+import logging
+import logging.handlers
 from datetime import datetime
 from datetime import date
 from datetime import timedelta
@@ -12,6 +14,8 @@ import os
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
+
+logger = logging.getLogger(__name__)
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 holidays = np.array(['2023-01-26', '2023-03-07', '2023-03-30', '2023-04-04', '2023-04-07', '2023-04-14', '2023-05-01',
                     '2023-06-28', '2023-08-15', '2023-09-19', '2023-10-02', '2023-10-24', '2023-11-14', '2023-11-27', '2023-12-25'])
@@ -100,10 +104,11 @@ def parse_csv_and_save():
     json_obj = {}
     json_obj["data"] = final_json
     json_obj["timestamp"] = merged_df['timestamp'].iloc[0]
-    # last_row_data = supabase.table('bhavcopy').select("*").order('id', desc=True).limit(1).single().execute()
-    # print(last_row_data.data.timestamp)
-    # data = supabase.table("bhavcopy").insert(json_obj).execute();
-    # print(data)
+    try:
+        supabase.table("bhavcopy").insert(json_obj).execute()
+        logger.info("Bhavcopy successfully added")
+    except KeyError:
+        logger.info("Error : Not able to fetch bhavcopy data")
     print(previous_day)
     get_previous_day_data(previous_day)
 
@@ -151,18 +156,28 @@ def map_percent_change_with_todays_data(oldData, newData):
 
 def get_todays_data(date):
     global todays_data
-    response = supabase.table('bhavcopy').select(
-        "*").eq('timestamp', date).single().execute()
-    todays_data = response.data['data']
+
+    try:
+        response = supabase.table('bhavcopy').select(
+            "*").eq('timestamp', date).single().execute()
+        todays_data = response.data['data']
+        logger.info("Successfully retrieved today's data")
+    except KeyError:
+        logger.error('Error: No data today')
+
     map_percent_change_with_todays_data(previous_day_data, todays_data)
 
 
 def get_previous_day_data(date):
     global previous_day_data
 
-    response = supabase.table('bhavcopy').select(
-        "*").eq('timestamp', date).single().execute()
-    previous_day_data = response.data['data']
+    try:
+        response = supabase.table('bhavcopy').select(
+            "*").eq('timestamp', date).single().execute()
+        previous_day_data = response.data['data']
+        logger.info('Successfully retrieved previous day')
+    except KeyError:
+        logger.error('Error: No previous day data')
     today = date.today()
     get_todays_data(today)
 
@@ -180,9 +195,26 @@ def get_first_day_data():
 def add_data_in_db(data):
     result_json = json.dumps(data)
     final_json = json.loads(result_json)
-    response = supabase.table("openInterest").insert(final_json).execute()
+    try:
+        supabase.table("openInterest").insert(final_json).execute()
+        logger.info("Successfully added analyzed data")
+    except KeyError:
+        logger.error('Error: not able to add analyzed data')
 
-    print(response)
+
+def run_logs():
+    logger.setLevel(logging.DEBUG)
+    logger_file_handler = logging.handlers.RotatingFileHandler(
+        "status.log",
+        maxBytes=1024 * 1024,
+        backupCount=1,
+        encoding="utf8",
+    )
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logger_file_handler.setFormatter(formatter)
+    logger.addHandler(logger_file_handler)
 
 
+run_logs()
 parse_csv_and_save()
