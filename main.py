@@ -15,6 +15,7 @@ SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
 
+
 logger = logging.getLogger(__name__)
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 holidays = np.array(['2023-01-26', '2023-03-07', '2023-03-30', '2023-04-04', '2023-04-07', '2023-04-14', '2023-05-01',
@@ -53,7 +54,7 @@ previous_day = get_previous_weekday_date(today)
 
 def download_and_save_bhavcopy():
     current_date = get_previous_weekday_date(today)
-    if (now.hour > 22 and now.hour < 23):
+    if (now.hour > 20):
         current_date = today
 
     formatted_date = current_date.strftime("%d%b%Y").upper()
@@ -232,4 +233,4 @@ def run_app(should_download):
 
 
 run_logs()
-run_app(False)
+run_app(True) # This should be true to download and save bhav copy data
