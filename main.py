@@ -220,11 +220,11 @@ def run_app(should_download):
 
     today = date.today()
 
-    # prev_date = previous_day;
-    # current_date = today;
+    prev_date = previous_day;
+    current_date = today;
 
-    prev_date = '2023-07-18'
-    current_date = '2023-07-19'
+    # prev_date = '2023-07-18'
+    # current_date = '2023-07-19'
 
     get_previous_day_data(prev_date)
     get_todays_data(current_date)
