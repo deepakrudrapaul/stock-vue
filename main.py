@@ -50,10 +50,10 @@ previous_day = get_previous_weekday_date(today)
 
 # pd.set_option('display.max_rows', None)
 
-def parse_csv_and_save():
 
+def download_and_save_bhavcopy():
     current_date = get_previous_weekday_date(today)
-    if (now.hour > 18 and now.hour < 23):
+    if (now.hour > 22 and now.hour < 23):
         current_date = today
 
     formatted_date = current_date.strftime("%d%b%Y").upper()
@@ -109,8 +109,6 @@ def parse_csv_and_save():
         logger.info("Bhavcopy successfully added")
     except KeyError:
         logger.info("Error : Not able to fetch bhavcopy data")
-    print(previous_day)
-    get_previous_day_data(previous_day)
 
 
 def format_number(amount):
@@ -175,11 +173,10 @@ def get_previous_day_data(date):
         response = supabase.table('bhavcopy').select(
             "*").eq('timestamp', date).single().execute()
         previous_day_data = response.data['data']
+        print(previous_day_data)
         logger.info('Successfully retrieved previous day')
     except KeyError:
         logger.error('Error: No previous day data')
-    today = date.today()
-    get_todays_data(today)
 
 
 def get_first_day_data():
@@ -216,5 +213,23 @@ def run_logs():
     logger.addHandler(logger_file_handler)
 
 
+
+def run_app(should_download):
+    if(should_download):
+        download_and_save_bhavcopy();
+
+    today = date.today()
+
+    # prev_date = previous_day;
+    # current_date = today;
+
+    prev_date = '2023-07-18'
+    current_date = '2023-07-19'
+
+    get_previous_day_data(prev_date)
+    get_todays_data(current_date)
+        
+
+
 run_logs()
-parse_csv_and_save()
+run_app(False)
