@@ -53,9 +53,7 @@ previous_day = get_previous_weekday_date(today)
 
 
 def download_and_save_bhavcopy():
-    current_date = get_previous_weekday_date(today)
-    if (now.hour > 20):
-        current_date = today
+    current_date = today
 
     formatted_date = current_date.strftime("%d%b%Y").upper()
     # formatted_date = '17JUL2023'
