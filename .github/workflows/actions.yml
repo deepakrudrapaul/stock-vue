@@ -2,7 +2,7 @@ name: run main.py
 
 on: 
   schedule:
-    - cron:  '52 17 * * *'
+    - cron:  '0 17 * * *'
 jobs:
   build:
     runs-on: ubuntu-latest
