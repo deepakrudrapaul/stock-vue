@@ -1,5 +1,6 @@
 from supabase import create_client, Client
 import pandas as pd
+from tqdm import tqdm
 import numpy as np
 import logging
 import logging.handlers
@@ -9,11 +10,16 @@ from datetime import timedelta
 import calendar
 import json
 import os
+from nse import fno_bhav_copy, live_option_chain
+import csv
+import math
 
-
-SUPABASE_URL = os.environ["SUPABASE_URL"]
-SUPABASE_KEY = os.environ["SUPABASE_KEY"]
-
+# Use tqdm to display the progress
+tqdm.pandas()
+# SUPABASE_URL = os.environ["SUPABASE_URL"]
+# SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+SUPABASE_URL = "https://cxeowviwukniuzoktejg.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4ZW93dml3dWtuaXV6b2t0ZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODA5MzA1MDMsImV4cCI6MTk5NjUwNjUwM30.9LFMvjTBtqQAU-73tWEyJA-j-pam-utGsdiXWaL5uy8"
 
 
 logger = logging.getLogger(__name__)
@@ -49,49 +55,27 @@ if str_today in holidays:
 previous_day = get_previous_weekday_date(today)
 
 
-# pd.set_option('display.max_rows', None)
 
-
-def download_and_save_bhavcopy():
-    current_date = today
-
-    formatted_date = current_date.strftime("%d%b%Y").upper()
-    # formatted_date = '17JUL2023'
-
-    print('Downloading data for : ' + formatted_date)
-    print()
-
-    data_url = 'https://archives.nseindia.com/content/historical/DERIVATIVES/' + \
-        currentYear + '/' + currentMonth + '/fo' + formatted_date + 'bhav.csv.zip'
-
-    df = pd.read_csv(data_url, compression='zip')
-    column_to_exclude = ['OPTSTK', 'OPTIDX']
-
+def download_and_save_bhavcopy(date):
+    df = fno_bhav_copy(trade_date=date)
     print("Reading data....")
-    filtered_df = df[~df['INSTRUMENT'].isin(column_to_exclude)]
 
-    current_expiry = [filtered_df['EXPIRY_DT'].iloc[0]]
+    sub_total_df = df.groupby('TckrSymb')[['TtlTradgVol', 'TtlTrfVal', 'OpnIntrst', 'ChngInOpnIntrst']].sum()
 
-    sub_total_df = filtered_df.groupby(
-        'SYMBOL')[['CONTRACTS', 'OPEN_INT', 'CHG_IN_OI']].sum()
 
-    current_expiry_df = filtered_df[filtered_df['EXPIRY_DT'].isin(
-        current_expiry)]
-    current_expiry_df.drop(['VAL_INLAKH', 'SETTLE_PR', 'LOW', 'HIGH', 'OPEN', 'INSTRUMENT', 'INSTRUMENT', 'EXPIRY_DT',
-                           'STRIKE_PR', 'OPTION_TYP', 'CONTRACTS', 'VAL_INLAKH', 'OPEN_INT', 'CHG_IN_OI'], axis=1, inplace=True)
+    current_expiry = [df['XpryDt'].iloc[0]]
+    current_expiry_df = df[df['XpryDt'].isin(current_expiry)]
+    filtered_df = current_expiry_df[['TckrSymb', 'ClsPric', 'TradDt']]
+    merged_df = pd.merge(filtered_df, sub_total_df, on='TckrSymb')
 
-    merged_df = pd.merge(current_expiry_df, sub_total_df, on='SYMBOL')
-    merged_df.rename(columns={'SYMBOL': 'symbol'}, inplace=True)
-    merged_df.rename(columns={'CLOSE': 'close'}, inplace=True)
-    merged_df.rename(columns={'TIMESTAMP': 'timestamp'}, inplace=True)
-    merged_df.rename(columns={'CONTRACTS': 'lotsTraded'}, inplace=True)
-    merged_df.rename(columns={'OPEN_INT': 'openInterest'}, inplace=True)
-    merged_df.rename(columns={'CHG_IN_OI': 'changeOi'}, inplace=True)
-
+    merged_df.rename(columns={'TckrSymb': 'symbol'}, inplace=True)
+    merged_df.rename(columns={'ClsPric': 'close'}, inplace=True)
+    merged_df.rename(columns={'TradDt': 'timestamp'}, inplace=True)
+    merged_df.rename(columns={'TtlTradgVol': 'lotsTraded'}, inplace=True)
+    merged_df.rename(columns={'OpnIntrst': 'openInterest'}, inplace=True)
+    merged_df.rename(columns={'ChngInOpnIntrst': 'changeOi'}, inplace=True)
+    merged_df.rename(columns={'TtlTrfVal': 'totalValue'}, inplace=True)
     merged_df.dropna(axis=1, inplace=True)
-    merged_df['timestamp'] = pd.to_datetime(
-        merged_df['timestamp'], dayfirst=True)
-    merged_df['timestamp'] = merged_df['timestamp'].dt.strftime('%Y-%m-%d')
 
     result = merged_df.to_dict(orient='records')
     result_json = json.dumps(result)
@@ -139,16 +123,29 @@ def get_percent_change(previous, current):
 
 
 def map_percent_change_with_todays_data(oldData, newData):
-    for index, data in enumerate(newData):
-        if oldData[index]['symbol'] == data['symbol']:
-            data['oneDayPriceChange'] = get_percent_change(
-                oldData[index]['close'], data['close'])
-            data['oneDayOiChange'] = get_percent_change(
-                oldData[index]['openInterest'], data['openInterest'])
+    oldDataSet = {item['symbol']: item for item in oldData}
+    for data in newData:
+        oldValue = oldDataSet.get(data['symbol'])
+        if oldValue:
+                data['oneDayPriceChange'] = get_percent_change(oldValue['close'], data['close'])
+                data['oneDayOiChange'] = get_percent_change(oldValue['openInterest'], data['openInterest'])
+                data['oneDayValueChange'] = get_percent_change(oldValue['totalValue'], data['totalValue'])
+                data['openInterest'] = format_number(data['openInterest'])
+                data['lotsTraded'] = format_number(data['lotsTraded'])
+                data['changeOi'] = format_number(data['changeOi'])
+                data['totalValue'] = format_number(data['totalValue'])
+        else:
+            data['oneDayPriceChange'] = 0
+            data['oneDayOiChange'] = 0
+            data['oneDayValueChange'] = 0
             data['openInterest'] = format_number(data['openInterest'])
             data['lotsTraded'] = format_number(data['lotsTraded'])
             data['changeOi'] = format_number(data['changeOi'])
-            add_data_in_db(data)
+            data['totalValue'] = format_number(data['totalValue'])
+    sorted_data = sorted(newData, key=lambda x: x['symbol'])
+    for item in sorted_data:
+        add_data_in_db(item)
+
 
 
 def get_todays_data(date):
@@ -158,10 +155,9 @@ def get_todays_data(date):
         response = supabase.table('bhavcopy').select(
             "*").eq('timestamp', date).single().execute()
         todays_data = response.data['data']
-        logger.info("Successfully retrieved today's data")
+        logger.info("Successfully retrieved today's data : " + date)
     except KeyError:
         logger.error('Error: No data today')
-
     map_percent_change_with_todays_data(previous_day_data, todays_data)
 
 
@@ -172,8 +168,7 @@ def get_previous_day_data(date):
         response = supabase.table('bhavcopy').select(
             "*").eq('timestamp', date).single().execute()
         previous_day_data = response.data['data']
-        print(previous_day_data)
-        logger.info('Successfully retrieved previous day')
+        logger.info('Successfully retrieved previous day : ' + date)
     except KeyError:
         logger.error('Error: No previous day data')
 
@@ -213,22 +208,25 @@ def run_logs():
 
 
 
+
+
 def run_app(should_download):
-    if(should_download):
-        download_and_save_bhavcopy();
-
     today = date.today()
+    prev_date = previous_day.strftime("%Y-%m-%d")
+    current_date = today.strftime("%Y-%m-%d")
+    # prev_date = '2024-07-11'
+    # current_date = '2024-07-12'
 
-    prev_date = previous_day;
-    current_date = today;
+    if(should_download):
+        todays_date = today.strftime("%d-%m-%Y")
+        # todays_date = "12-07-2024"
+        download_and_save_bhavcopy(todays_date)
 
-    # prev_date = '2023-07-18'
-    # current_date = '2023-07-19'
-
-    get_previous_day_data(prev_date)
+    get_previous_day_data(prev_date)    
     get_todays_data(current_date)
         
 
 
-run_logs()
-run_app(True) # This should be true to download and save bhav copy data
+# run_logs()
+# run_app(False) # This should be true to download and save bhav copy data
+fetch_option_data()
