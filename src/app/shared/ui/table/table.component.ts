@@ -21,7 +21,7 @@ interface Column {
 })
 export class TableComponent {
   @Input() title!:string;
-  @Input() list!: any[];
+  @Input() list: any[] = [];
   @Input() isLoading: boolean = false;
   columns: Column[] = [
     {
