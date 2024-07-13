@@ -1,24 +1,26 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DateTime } from 'luxon';
 import { FuturesService } from '../../data-access/futures.service';
 import { FormsModule } from '@angular/forms';
 import { SpinnerComponent } from 'src/app/shared/ui/spinner/spinner.component';
 import { TableComponent } from 'src/app/shared/ui/table/table.component';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
 
 
 @Component({
   selector: 'app-oi-scan',
   standalone: true,
-  imports: [CommonModule, TableComponent, SpinnerComponent, FormsModule],
+  imports: [CommonModule, TableComponent, SpinnerComponent, FormsModule, DropdownModule, CalendarModule],
   templateUrl: './oi-scan.component.html',
   styleUrls: ['./oi-scan.component.scss']
 })
-export class OiScanComponent {
+export class OiScanComponent implements OnInit {
 
   futureService = inject(FuturesService);
 
-  currentDate = DateTime.now().toFormat("yyyy-MM-dd");
+  currentDate = DateTime.now();
   isLoading: boolean = false;
 
 
@@ -27,19 +29,20 @@ export class OiScanComponent {
   oiStockList:any = [];
   
 
-  constructor() {
+  constructor() {}
+
+  ngOnInit(): void {
     this.stockList.sort();
     this.stockList.unshift(...['NIFTY', 'BANKNIFTY']);
-    this.currentStock = this.stockList[0];
     this.getStockOiData(this.currentStock, this.currentDate);
   }
 
   onStockChange(value:any, currentDate: any) {
-    this.getStockOiData(value ? value : "", currentDate);
+    this.getStockOiData(value ? value : "", DateTime.fromJSDate(currentDate).toFormat("yyyy-MM-dd"));
   }
 
   onDateChange(value:any, currentStock:any) {
-    this.getStockOiData(currentStock, value);
+    this.getStockOiData(currentStock, DateTime.fromJSDate(value).toFormat("yyyy-MM-dd"));
 
   }
 

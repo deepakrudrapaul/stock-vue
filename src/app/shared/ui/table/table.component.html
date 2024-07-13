@@ -1,31 +1,39 @@
-<div class="card lg:card-side bg-base-100 shadow-sm">
-    <div class="card-body">
-      <h2 class="card-title">{{title}}</h2>
-      
+<div class="my-2">
+  <p-card header={{title}}>
 
-      <div class="overflow-x-auto">
-        <table *ngIf="list.length && !isLoading" class="table table-zebra w-full">
-          <!-- head -->
-          <thead>
+  <ng-container *ngIf="!isLoading;else loader">
+    <p-table *ngIf="list.length"  [columns]="columns" [value]="list" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header" let-columns>
+          <tr>
+              <th *ngFor="let col of columns">
+                  {{ col.label }}
+              </th>
+          </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr>
+              <td *ngFor="let col of columns">
+                <span *ngIf="col.dataType === 'date'">
+                  {{ rowData[col.field] | date }}
+                </span>
+                <span *ngIf="col.dataType !== 'date'">
+                  {{ rowData[col.field] }}
+                </span>
+              </td>
+          </tr>
+      </ng-template>
+  </p-table>
+  </ng-container>
 
-            <tr>
-              <th *ngFor="let header of headers">{{header}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- row  -->
-            <tr *ngFor="let item of list">
-              <td>{{item.symbol}}</td>
-              <td>{{item.oneDayPriceChange}} %</td>
-              <td>{{item.oneDayOiChange}} %</td>
-              <td>{{item.timestamp | date}}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="h-96 flex items-center justify-center" *ngIf="isLoading">
-          <app-spinner/>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div *ngIf="!list.length && !isLoading">No data found !</div>
+   <ng-template #loader>
+      <p-skeleton height="2rem" styleClass="mb-4" />
+      <p-skeleton height="2rem" styleClass="mb-4" />
+  </ng-template>
+  </p-card>
+
+
+  
+</div>
+
 
