@@ -22,33 +22,7 @@ interface Column {
 export class TableComponent {
   @Input() title!:string;
   @Input() list: any[] = [];
+  @Input() columns: any[] = [];
   @Input() isLoading: boolean = false;
-  columns: Column[] = [
-    {
-      label : 'Symbol',
-      field: 'symbol',
-      dataType: 'string'
-    },
-    {
-      label : 'Price Change',
-      field: 'oneDayPriceChange',
-      dataType: 'string'
-    },
-    {
-      label : 'OI Change',
-      field: 'oneDayOiChange',
-      dataType: 'string'
-    },
-    {
-      label : 'Volume Change',
-      field: 'oneDayValueChange',
-      dataType: 'string'
-    },
-    {
-      label : 'Date',
-      field: 'timestamp',
-      dataType: 'date'
-    }
-  ];
 
 }

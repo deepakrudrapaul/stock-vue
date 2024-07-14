@@ -36,7 +36,33 @@ export class HomePageComponent {
   date:any;
   holidays = ['2023-01-26', '2023-03-07', '2023-03-30', '2023-04-04', '2023-04-07', '2023-04-14', '2023-05-01', '2023-06-28', '2023-08-15', '2023-09-19', '2023-10-02', '2023-10-24', '2023-11-14', '2023-11-27', '2023-12-25'];
   currentDate = DateTime.now().toFormat("yyyy-MM-dd");
-  
+  columns = [
+    {
+      label : 'Symbol',
+      field: 'symbol',
+      dataType: 'string'
+    },
+    {
+      label : 'Price Change',
+      field: 'oneDayPriceChange',
+      dataType: 'string'
+    },
+    {
+      label : 'OI Change',
+      field: 'oneDayOiChange',
+      dataType: 'string'
+    },
+    {
+      label : 'Volume Change',
+      field: 'oneDayValueChange',
+      dataType: 'string'
+    },
+    {
+      label : 'Date',
+      field: 'timestamp',
+      dataType: 'date'
+    }
+  ];
   
 
 

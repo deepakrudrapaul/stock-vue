@@ -16,7 +16,13 @@
                 <span *ngIf="col.dataType === 'date'">
                   {{ rowData[col.field] | date }}
                 </span>
-                <span *ngIf="col.dataType !== 'date'">
+                <span *ngIf="col.dataType === 'time'">
+                  {{ rowData[col.field] | date:'shortTime' }}
+                </span>
+                <span *ngIf="col.dataType === 'number'">
+                  {{ rowData[col.field] | number:'1.0-0' }}
+                </span>
+                <span *ngIf="col.dataType === 'string'">
                   {{ rowData[col.field] }}
                 </span>
               </td>

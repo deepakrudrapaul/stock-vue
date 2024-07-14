@@ -18,6 +18,33 @@ export class OiBuildupComponent {
 
   currentDate = DateTime.now().toFormat("yyyy-MM-dd");
   isLoading: boolean = false;
+  columns = [
+    {
+      label : 'Symbol',
+      field: 'symbol',
+      dataType: 'string'
+    },
+    {
+      label : 'Price Change',
+      field: 'oneDayPriceChange',
+      dataType: 'string'
+    },
+    {
+      label : 'OI Change',
+      field: 'oneDayOiChange',
+      dataType: 'string'
+    },
+    {
+      label : 'Volume Change',
+      field: 'oneDayValueChange',
+      dataType: 'string'
+    },
+    {
+      label : 'Date',
+      field: 'timestamp',
+      dataType: 'date'
+    }
+  ];
 
 
   currentStock:any = null;

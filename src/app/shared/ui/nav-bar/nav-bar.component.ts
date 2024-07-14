@@ -36,7 +36,12 @@ export class NavBarComponent {
       label: 'OI Buildup',
       icon: 'pi pi-star',
       path: this.appConstants.Routes.OI_BUILD_UP
-  },
+    },
+    {
+      label: 'OI Diff',
+      icon: 'pi pi-star',
+      path: this.appConstants.Routes.OI_DIFF
+    },
 
   ]
 }

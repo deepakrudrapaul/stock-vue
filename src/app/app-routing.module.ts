@@ -16,6 +16,10 @@ const routes: Routes = [
     loadComponent: () => import('./futures/feature/oi-buildup/oi-buildup.component').then((m) => m.OiBuildupComponent)
   },
   {
+    path:AppConstants.Routes.OI_DIFF,
+    loadComponent: () => import('./options/feature/oi-dff/oi-dff.component').then((m) => m.OiDffComponent)
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',
