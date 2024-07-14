@@ -227,4 +227,3 @@ def run_app(should_download):
 
 # run_logs()
 # run_app(False) # This should be true to download and save bhav copy data
-fetch_option_data()
