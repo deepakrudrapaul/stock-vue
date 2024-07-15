@@ -19,8 +19,8 @@ export class OptionsService {
     let query = this.supabase?.from('option-chain').select('*');
       query?.eq('symbol', symbol);
 
-      query?.filter('timestamp', 'gte', '2024-07-14')
-      query?.filter('timestamp', 'lt', '2024-07-15');
+      query?.filter('timestamp', 'gte', '2024-07-15')
+      query?.filter('timestamp', 'lt', '2024-07-16');
     return query
       ?.order('created_at', { ascending: true });
   }

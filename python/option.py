@@ -6,10 +6,13 @@ import math
 import csv
 import random
 import os
+import schedule
+import time
 
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -43,27 +46,23 @@ def fetch_option_data():
     prepareCallPutDiffData(filteredData, records)
 
 def prepareCallPutDiffData(filteredData, records):
-    timestamp = datetime.now() 
-    new_timestamp = timestamp
     ceSum = 0
     peSum = 0
     for item in filteredData:
         ceSum = ceSum + item['CE']['changeinOpenInterest']
         peSum = peSum + item['PE']['changeinOpenInterest']
 
-    for i in range(40):
-        new_timestamp = new_timestamp + timedelta(minutes=3)
-        jsonObj = {}
-        jsonObj['ceChange'] = ceSum
-        jsonObj['peChange'] = peSum
-        jsonObj['diff'] = peSum - ceSum  
-        jsonObj['pcr'] = round(peSum/ceSum, 2)
-        jsonObj['symbol'] = "NIFTY"
-        jsonObj['underlyingValue'] = records['underlyingValue']
-        jsonObj['timestamp'] = records['timestamp']
-        data = supabase.table("option-chain").insert(jsonObj).execute();
-        print(jsonObj)
-        print("Done...")
+    jsonObj = {}
+    jsonObj['ceChange'] = ceSum
+    jsonObj['peChange'] = peSum
+    jsonObj['diff'] = peSum - ceSum  
+    jsonObj['pcr'] = round(peSum/ceSum, 2)
+    jsonObj['symbol'] = "NIFTY"
+    jsonObj['underlyingValue'] = records['underlyingValue']
+    jsonObj['timestamp'] = records['timestamp']
+    data = supabase.table("option-chain").insert(jsonObj).execute();
+    print(jsonObj)
+    print("Done...")
 
 
 
@@ -79,7 +78,13 @@ def export_csv(data, fileName):
         # Write the data
         writer.writerows(data)
 
-fetch_option_data()
+# Schedule the function to run every 5 minutes
+# schedule.every(5).minutes.do(fetch_option_data)
 
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
+
+fetch_option_data()
 
 
