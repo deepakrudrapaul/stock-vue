@@ -1,21 +1,29 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { OptionsService } from '../../data-access/options.service';
-import { TableComponent } from '../../../shared/ui/table/table.component';
-import { ChartModule } from 'primeng/chart';
-import { CalendarModule } from 'primeng/calendar';
-import { DateTime } from 'luxon';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ChartModule } from 'primeng/chart';
+import { CalendarModule } from 'primeng/calendar';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { DateTime } from 'luxon';
+import { OptionsService } from '../../data-access/options.service';
+import { TableComponent } from '../../../shared/ui/table/table.component';
+import { AppConstants } from '../../../shared/utils/app-constants';
+import { BehaviorSubject, interval, Subject, Subscription, takeUntil, takeWhile, timer } from 'rxjs';
+
 
 @Component({
   selector: 'app-oi-dff',
   standalone: true,
-  imports: [TableComponent, ChartModule, CalendarModule, CommonModule, FormsModule],
+  imports: [TableComponent, ChartModule, CalendarModule, CommonModule, FormsModule, ToggleButtonModule],
   templateUrl: './oi-dff.component.html',
   styleUrl: './oi-dff.component.scss'
 })
 export class OiDffComponent implements OnInit {
 
+  private subscription: Subscription =  new Subscription();
+  private stopPolling$ = new Subject<void>();
+
+  appConstant = AppConstants;
   isLoading: boolean = false;
   currentDate = new Date();
   oiList:any[] = []
@@ -57,8 +65,6 @@ export class OiDffComponent implements OnInit {
   optionService = inject(OptionsService);
 
   ngOnInit(): void {
-    console.log(this.currentDate)
-
     this.getOptionOIData("NIFTY", this.currentDate)
   }
 
@@ -70,6 +76,8 @@ export class OiDffComponent implements OnInit {
       this.generateChartData(res.data)
     });
   }
+
+
 
   onDateChange(event: any) {
     this.getOptionOIData("NIFTY", event)
@@ -129,5 +137,23 @@ export class OiDffComponent implements OnInit {
           }
       }
   };
+  }
+
+
+  startPolling() {
+    this.subscription = timer(0, 300000).pipe(
+      takeUntil(this.stopPolling$)
+    ).subscribe(() => {
+      this.getOptionOIData("NIFTY", this.currentDate);
+    })
+  }
+
+
+  checkAutoRefresh(event:any) {
+    if(event.checked) {
+      this.startPolling();
+    }else{
+      this.stopPolling$.next();
+    }
   }
 }

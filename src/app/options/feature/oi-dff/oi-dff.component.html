@@ -1,5 +1,9 @@
-<div class="card mt-4 ml-4">
+<div class="card flex gap-4 mt-4 ml-4">
     <p-calendar styleClass="w-15rem" [(ngModel)]="currentDate" (ngModelChange)="onDateChange($event)" placeholder="Enter Date" />
+    <p-toggleButton 
+        (onChange)="checkAutoRefresh($event)"
+        onLabel="{{appConstant.AUTO_REFRESH_ON}}"
+        offLabel="{{appConstant.AUTO_REFRESH_OFF}}" />
 </div>
 
 <app-table [isLoading]="isLoading" [list]="oiList" [columns]="columns"></app-table>
