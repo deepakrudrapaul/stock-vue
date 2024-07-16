@@ -25,6 +25,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 holidays = np.array(['2023-01-26', '2023-03-07', '2023-03-30', '2023-04-04', '2023-04-07', '2023-04-14', '2023-05-01',
                     '2023-06-28', '2023-08-15', '2023-09-19', '2023-10-02', '2023-10-24', '2023-11-14', '2023-11-27', '2023-12-25'])
 
+is_data_download_success = True;
+
 
 def get_previous_weekday_date(date):
     one_day = timedelta(days=1)
@@ -55,41 +57,48 @@ previous_day = get_previous_weekday_date(today)
 
 
 def download_and_save_bhavcopy(date):
+    global is_data_download_success
     df = fno_bhav_copy(trade_date=date)
-    print("Reading data....")
+    if df:
+        print("Reading data....")
 
-    sub_total_df = df.groupby('TckrSymb')[['TtlTradgVol', 'TtlTrfVal', 'OpnIntrst', 'ChngInOpnIntrst']].sum()
+        sub_total_df = df.groupby('TckrSymb')[['TtlTradgVol', 'TtlTrfVal', 'OpnIntrst', 'ChngInOpnIntrst']].sum()
 
 
-    current_expiry = [df['XpryDt'].iloc[0]]
-    current_expiry_df = df[df['XpryDt'].isin(current_expiry)]
-    filtered_df = current_expiry_df[['TckrSymb', 'ClsPric', 'TradDt']]
-    merged_df = pd.merge(filtered_df, sub_total_df, on='TckrSymb')
+        current_expiry = [df['XpryDt'].iloc[0]]
+        current_expiry_df = df[df['XpryDt'].isin(current_expiry)]
+        filtered_df = current_expiry_df[['TckrSymb', 'ClsPric', 'TradDt']]
+        merged_df = pd.merge(filtered_df, sub_total_df, on='TckrSymb')
 
-    merged_df.rename(columns={'TckrSymb': 'symbol'}, inplace=True)
-    merged_df.rename(columns={'ClsPric': 'close'}, inplace=True)
-    merged_df.rename(columns={'TradDt': 'timestamp'}, inplace=True)
-    merged_df.rename(columns={'TtlTradgVol': 'lotsTraded'}, inplace=True)
-    merged_df.rename(columns={'OpnIntrst': 'openInterest'}, inplace=True)
-    merged_df.rename(columns={'ChngInOpnIntrst': 'changeOi'}, inplace=True)
-    merged_df.rename(columns={'TtlTrfVal': 'totalValue'}, inplace=True)
-    merged_df.dropna(axis=1, inplace=True)
+        merged_df.rename(columns={'TckrSymb': 'symbol'}, inplace=True)
+        merged_df.rename(columns={'ClsPric': 'close'}, inplace=True)
+        merged_df.rename(columns={'TradDt': 'timestamp'}, inplace=True)
+        merged_df.rename(columns={'TtlTradgVol': 'lotsTraded'}, inplace=True)
+        merged_df.rename(columns={'OpnIntrst': 'openInterest'}, inplace=True)
+        merged_df.rename(columns={'ChngInOpnIntrst': 'changeOi'}, inplace=True)
+        merged_df.rename(columns={'TtlTrfVal': 'totalValue'}, inplace=True)
+        merged_df.dropna(axis=1, inplace=True)
 
-    result = merged_df.to_dict(orient='records')
-    result_json = json.dumps(result)
-    final_json = json.loads(result_json)
+        result = merged_df.to_dict(orient='records')
+        result_json = json.dumps(result)
+        final_json = json.loads(result_json)
 
-    print()
-    print("Inserting in DB....")
+        print()
+        print("Inserting in DB....")
 
-    json_obj = {}
-    json_obj["data"] = final_json
-    json_obj["timestamp"] = merged_df['timestamp'].iloc[0]
-    try:
-        supabase.table("bhavcopy").insert(json_obj).execute()
-        logger.info("Bhavcopy successfully added")
-    except KeyError:
-        logger.info("Error : Not able to fetch bhavcopy data")
+        json_obj = {}
+        json_obj["data"] = final_json
+        json_obj["timestamp"] = merged_df['timestamp'].iloc[0]
+        try:
+            supabase.table("bhavcopy").insert(json_obj).execute()
+            logger.info("Bhavcopy successfully added")
+            is_data_download_success = True
+        except KeyError:
+            is_data_download_success = False
+            logger.info("Error : Not able to fetch bhavcopy data")
+    else:
+        is_data_download_success = False
+
 
 
 def format_number(amount):
@@ -212,18 +221,19 @@ def run_app(should_download):
     today = date.today()
     prev_date = previous_day.strftime("%Y-%m-%d")
     current_date = today.strftime("%Y-%m-%d")
-    # prev_date = '2024-07-11'
-    # current_date = '2024-07-12'
+    # prev_date = '2024-07-15'
+    # current_date = '2024-07-16'
 
     if(should_download):
-        todays_date = today.strftime("%d-%m-%Y")
-        # todays_date = "12-07-2024"
+        # todays_date = today.strftime("%d-%m-%Y")
+        todays_date = "14-07-2024"
         download_and_save_bhavcopy(todays_date)
 
-    get_previous_day_data(prev_date)    
-    get_todays_data(current_date)
+    if is_data_download_success:
+        get_previous_day_data(prev_date)    
+        get_todays_data(current_date)
         
 
 
 # run_logs()
-# run_app(False) # This should be true to download and save bhav copy data
+run_app(True) # This should be true to download and save bhav copy data

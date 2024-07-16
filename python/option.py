@@ -14,6 +14,7 @@ SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
 
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def format_number(amount):
@@ -83,8 +84,8 @@ def export_csv(data, fileName):
 
 # while True:
 #     schedule.run_pending()
+#     print("Running")
 #     time.sleep(1)
 
 fetch_option_data()
-
 

@@ -50,11 +50,10 @@ def fno_bhav_copy(trade_date: str):
     'type': 'equity',
     'mode': 'single'
     }
-    
+    bhav_df = ''
     url2="https://www.nseindia.com/api/reports"
     request_bhav = nse_urlfetch(url2, params)
-    print(request_bhav.status_code)
-    print("Getting data from : " + url2)
+    print("Getting data from : " + trade_date.__str__() + "  " + url2)
     if request_bhav.status_code == 200:
         zip_bhav = zipfile.ZipFile(BytesIO(request_bhav.content), 'r')
         for file_name in zip_bhav.filelist:
@@ -78,4 +77,4 @@ def live_option_chain(symbol):
     return request.content
 
 
-fno_bhav_copy(trade_date='08-07-2024')
+# fno_bhav_copy(trade_date='08-07-2024')
