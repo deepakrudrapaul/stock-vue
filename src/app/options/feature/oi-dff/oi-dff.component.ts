@@ -2,18 +2,22 @@ import { Component, inject, OnInit } from '@angular/core';
 import { OptionsService } from '../../data-access/options.service';
 import { TableComponent } from '../../../shared/ui/table/table.component';
 import { ChartModule } from 'primeng/chart';
+import { CalendarModule } from 'primeng/calendar';
 import { DateTime } from 'luxon';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-oi-dff',
   standalone: true,
-  imports: [TableComponent, ChartModule],
+  imports: [TableComponent, ChartModule, CalendarModule, CommonModule, FormsModule],
   templateUrl: './oi-dff.component.html',
   styleUrl: './oi-dff.component.scss'
 })
 export class OiDffComponent implements OnInit {
 
   isLoading: boolean = false;
+  currentDate = new Date();
   oiList:any[] = []
   options = {}
   chartData = {}
@@ -53,14 +57,22 @@ export class OiDffComponent implements OnInit {
   optionService = inject(OptionsService);
 
   ngOnInit(): void {
-    this.getOptionOIData("NIFTY", "2024-07-12")
+    console.log(this.currentDate)
+
+    this.getOptionOIData("NIFTY", this.currentDate)
   }
 
-  getOptionOIData(symbol: string, date: any) {
-    this.optionService.getOptionOiData(symbol, date)?.then((res :any) => {
+  getOptionOIData(symbol: string, date: Date) {
+    const fromDate  = DateTime.fromJSDate(this.currentDate).toFormat('yyyy-MM-dd');
+    const toDate  = DateTime.fromJSDate(this.currentDate).plus({day:1}).toFormat('yyyy-MM-dd');
+    this.optionService.getOptionOiData(symbol, fromDate ,toDate)?.then((res :any) => {
       this.oiList = res.data;
       this.generateChartData(res.data)
     });
+  }
+
+  onDateChange(event: any) {
+    this.getOptionOIData("NIFTY", event)
   }
 
   generateChartData(oiData:any) {

@@ -1,3 +1,7 @@
+<div class="card mt-4 ml-4">
+    <p-calendar styleClass="w-15rem" [(ngModel)]="currentDate" (ngModelChange)="onDateChange($event)" placeholder="Enter Date" />
+</div>
+
 <app-table [isLoading]="isLoading" [list]="oiList" [columns]="columns"></app-table>
 
 <div class="card">
