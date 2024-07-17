@@ -76,5 +76,24 @@ def live_option_chain(symbol):
         print("Error")
     return request.content
 
+def get_trading_holidays():
+    url = 'https://www.nseindia.com/api/holiday-master?type=trading'
+    request = nse_urlfetch(url=url)
+    if request.status_code == 200:
+        data_dict = request.json()
+        data_df = pd.DataFrame(columns=['Product', 'tradingDate', 'weekDay', 'description', 'Sr_no'])
+    for prod in data_dict:
+        h_df = pd.DataFrame(data_dict[prod])
+        h_df['Product'] = prod
+        data_df = pd.concat([data_df, h_df])
+    condition = [data_df['Product'] == 'CBM', data_df['Product'] == 'CD', data_df['Product'] == 'CM',
+                 data_df['Product'] == 'CMOT', data_df['Product'] == 'COM', data_df['Product'] == 'FO',
+                 data_df['Product'] == 'IRD', data_df['Product'] == 'MF', data_df['Product'] == 'NDM',
+                 data_df['Product'] == 'NTRP', data_df['Product'] == 'SLBS']
+    value = ['Corporate Bonds', 'Currency Derivatives', 'Equities', 'CMOT', 'Commodity Derivatives', 'Equity Derivatives',
+             'Interest Rate Derivatives', 'Mutual Funds', 'New Debt Segment', 'Negotiated Trade Reporting Platform',
+             'Securities Lending & Borrowing Schemes']
+    data_df['Product'] = np.select(condition, value)
+    return data_df
 
 # fno_bhav_copy(trade_date='08-07-2024')

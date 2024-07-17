@@ -10,14 +10,17 @@ from datetime import timedelta
 import calendar
 import json
 import os
-from nse import fno_bhav_copy, live_option_chain
+from nse import fno_bhav_copy, live_option_chain, get_trading_holidays
 import csv
 import math
 
 # Use tqdm to display the progress
 tqdm.pandas()
-SUPABASE_URL = os.environ["SUPABASE_URL"]
-SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+# SUPABASE_URL = os.environ["SUPABASE_URL"]
+# SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+
+SUPABASE_URL = "https://cxeowviwukniuzoktejg.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4ZW93dml3dWtuaXV6b2t0ZWpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODA5MzA1MDMsImV4cCI6MTk5NjUwNjUwM30.9LFMvjTBtqQAU-73tWEyJA-j-pam-utGsdiXWaL5uy8"
 
 
 logger = logging.getLogger(__name__)
@@ -219,19 +222,28 @@ def run_logs():
 
 def run_app(should_download):
     today = date.today()
-    prev_date = previous_day.strftime("%Y-%m-%d")
-    current_date = today.strftime("%Y-%m-%d")
-    # prev_date = '2024-07-15'
-    # current_date = '2024-07-16'
+    todays_date = today.strftime('%d-%b-%Y')
 
-    if(should_download):
-        # todays_date = today.strftime("%d-%m-%Y")
-        todays_date = "14-07-2024"
-        download_and_save_bhavcopy(todays_date)
+    holidays_df = get_trading_holidays()
+    filtered_df = holidays_df.loc[holidays_df['Product'] == 'Equity Derivatives']
 
-    if is_data_download_success:
-        get_previous_day_data(prev_date)    
-        get_todays_data(current_date)
+    if todays_date not in filtered_df['tradingDate'].values:
+        prev_date = previous_day.strftime("%Y-%m-%d")
+        current_date = today.strftime("%Y-%m-%d")
+        # prev_date = '2024-07-15'
+        # current_date = '2024-07-16'
+
+        if(should_download):
+            todays_date = today.strftime("%d-%m-%Y")
+            # todays_date = "14-07-2024"
+            download_and_save_bhavcopy(todays_date)
+
+        if is_data_download_success:
+            get_previous_day_data(prev_date)    
+            get_todays_data(current_date)
+    else:
+        print("Not Ready")
+
         
 
 
