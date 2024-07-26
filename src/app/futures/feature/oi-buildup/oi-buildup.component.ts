@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DateTime } from 'luxon';
 import { FuturesService } from '../../data-access/futures.service';
 import { getPreviousWeekdayDate } from 'src/app/shared/utils/utils';
 import { TableComponent } from 'src/app/shared/ui/table/table.component';
+import { AppConstants } from 'src/app/shared/utils/app-constants';
 
 
 @Component({
@@ -13,38 +14,12 @@ import { TableComponent } from 'src/app/shared/ui/table/table.component';
   templateUrl: './oi-buildup.component.html',
   styleUrls: ['./oi-buildup.component.scss']
 })
-export class OiBuildupComponent {
+export class OiBuildupComponent implements OnInit {
   futureService = inject(FuturesService);
 
   currentDate = DateTime.now().toFormat("yyyy-MM-dd");
   isLoading: boolean = false;
-  columns = [
-    {
-      label : 'Symbol',
-      field: 'symbol',
-      dataType: 'string'
-    },
-    {
-      label : 'Price Change',
-      field: 'oneDayPriceChange',
-      dataType: 'string'
-    },
-    {
-      label : 'OI Change',
-      field: 'oneDayOiChange',
-      dataType: 'string'
-    },
-    {
-      label : 'Volume Change',
-      field: 'oneDayValueChange',
-      dataType: 'string'
-    },
-    {
-      label : 'Date',
-      field: 'timestamp',
-      dataType: 'date'
-    }
-  ];
+  columns = AppConstants.COLUMNS;
 
 
   currentStock:any = null;
@@ -52,15 +27,17 @@ export class OiBuildupComponent {
   shortBuildupList:any = [];
   
 
-  constructor() {
+  constructor() {}
+
+  ngOnInit(): void {
     this.setCurrentDate();
     this.getLongBuildupStocks(this.currentDate);
-    this.getShortBuildupStocks(this.currentDate);
+    this.getShortBuildupStocks(this.currentDate); 
   }
 
 
   setCurrentDate() {
-    if(DateTime.now().hour < 18) {
+    if(DateTime.now().hour < 22) {
       this.currentDate = DateTime.fromJSDate(getPreviousWeekdayDate()).toFormat("yyyy-MM-dd"); 
     }
   }
