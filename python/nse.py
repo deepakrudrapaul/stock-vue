@@ -61,7 +61,7 @@ def fno_bhav_copy(trade_date: str):
                 bhav_df = pd.read_csv(zip_bhav.open(file_name))
                 bhav_df = bhav_df[~bhav_df['OptnTp'].isin(['CE', 'PE'])]
                 bhav_df = bhav_df[['Sgmt', 'TckrSymb', 'XpryDt', 'OpnPric', 'HghPric', 'LwPric',
-                    'ClsPric', 'SttlmPric', 'TtlTradgVol', 'TtlTrfVal', 'OpnIntrst', 'ChngInOpnIntrst', 'TradDt']]
+                    'ClsPric', 'SttlmPric', 'PrvsClsgPric', 'TtlTradgVol', 'TtlTrfVal', 'OpnIntrst', 'ChngInOpnIntrst', 'TradDt']]
     elif request_bhav.status_code == 403:
         raise FileNotFoundError(f' Data not found, change the date...')
     return bhav_df

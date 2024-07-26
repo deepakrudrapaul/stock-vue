@@ -1,6 +1,5 @@
 from supabase import create_client, Client
 import pandas as pd
-from tqdm import tqdm
 import numpy as np
 import logging
 import logging.handlers
@@ -14,8 +13,7 @@ from nse import fno_bhav_copy, live_option_chain, get_trading_holidays
 import csv
 import math
 
-# Use tqdm to display the progress
-tqdm.pandas()
+
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
@@ -34,9 +32,6 @@ def get_previous_weekday_date(date):
         date -= 3 * one_day
     else:
         date -= one_day
-
-    str_date = date.isoformat()
-    date = get_previous_weekday_date(date)
     return date
 
 
@@ -62,11 +57,12 @@ def download_and_save_bhavcopy(date):
 
         current_expiry = [df['XpryDt'].iloc[0]]
         current_expiry_df = df[df['XpryDt'].isin(current_expiry)]
-        filtered_df = current_expiry_df[['TckrSymb', 'ClsPric', 'TradDt']]
+        filtered_df = current_expiry_df[['TckrSymb', 'ClsPric', 'TradDt', 'PrvsClsgPric']]
         merged_df = pd.merge(filtered_df, sub_total_df, on='TckrSymb')
 
         merged_df.rename(columns={'TckrSymb': 'symbol'}, inplace=True)
         merged_df.rename(columns={'ClsPric': 'close'}, inplace=True)
+        merged_df.rename(columns={'PrvsClsgPric': 'prevClose'}, inplace=True)
         merged_df.rename(columns={'TradDt': 'timestamp'}, inplace=True)
         merged_df.rename(columns={'TtlTradgVol': 'lotsTraded'}, inplace=True)
         merged_df.rename(columns={'OpnIntrst': 'openInterest'}, inplace=True)
@@ -119,8 +115,8 @@ def last_friday_of_month(year, month):
     return date(year, month, last_day[calendar.FRIDAY])
 
 
-def get_percent_change(previous, current):
-    percent = (current - previous)/current * 100
+def get_percent_change(newValue, oldValue):
+    percent = (newValue - oldValue)/oldValue * 100
     return round(percent, 1)
 
 
@@ -129,9 +125,9 @@ def map_percent_change_with_todays_data(oldData, newData):
     for data in newData:
         oldValue = oldDataSet.get(data['symbol'])
         if oldValue:
-                data['oneDayPriceChange'] = get_percent_change(oldValue['close'], data['close'])
-                data['oneDayOiChange'] = get_percent_change(oldValue['openInterest'], data['openInterest'])
-                data['oneDayValueChange'] = get_percent_change(oldValue['totalValue'], data['totalValue'])
+                data['oneDayPriceChange'] = get_percent_change(data['close'], data['prevClose'])
+                data['oneDayOiChange'] = get_percent_change(data['openInterest'], oldValue['openInterest'])
+                data['oneDayValueChange'] = get_percent_change(data['totalValue'], oldValue['totalValue'])
                 data['openInterest'] = format_number(data['openInterest'])
                 data['lotsTraded'] = format_number(data['lotsTraded'])
                 data['changeOi'] = format_number(data['changeOi'])
@@ -186,6 +182,7 @@ def get_first_day_data():
 
 
 def add_data_in_db(data):
+    del data['prevClose']
     result_json = json.dumps(data)
     final_json = json.loads(result_json)
     try:
@@ -209,32 +206,24 @@ def run_logs():
     logger.addHandler(logger_file_handler)
 
 
-
+def isHoliday():
+    holidays_df = get_trading_holidays()
+    filtered_df = holidays_df.loc[holidays_df['Product'] == 'Equity Derivatives']
 
 
 def run_app(should_download):
     today = date.today()
-    todays_date = today.strftime('%d-%b-%Y')
 
-    # holidays_df = get_trading_holidays()
-    # filtered_df = holidays_df.loc[holidays_df['Product'] == 'Equity Derivatives']
-    prev_date = previous_day.strftime("%Y-%m-%d")
-    current_date = today.strftime("%Y-%m-%d")
-
-
-    # if todays_date not in filtered_df['tradingDate'].values:
-
-
-    # else:
-    #     print("Not Ready")
-    # prev_date = '2024-07-24'
-    # current_date = '2024-07-25'
-
+    # todays_date = "26-07-2024"
+    todays_date = today.strftime("%d-%m-%Y")
     if(should_download):
-        todays_date = today.strftime("%d-%m-%Y")
-        # todays_date = "25-07-2024"
         download_and_save_bhavcopy(todays_date)
 
+
+    # prev_date = '2024-07-25'
+    # current_date = '2024-07-26'
+    prev_date = previous_day.strftime("%Y-%m-%d")
+    current_date = today.strftime("%Y-%m-%d")
     if is_data_download_success:
         get_previous_day_data(prev_date)    
         get_todays_data(current_date)
