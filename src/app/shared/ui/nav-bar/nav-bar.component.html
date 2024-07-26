@@ -1,9 +1,15 @@
 <p-menubar class="m-0" [model]="items">
   <ng-template pTemplate="item" let-item>
-    <ng-container>
-      <a [routerLink]="item.path" class="p-menuitem-link">
+    <ng-container *ngIf="!item.items; else noLink">
+      <a [routerLink]="item.route" class="p-menuitem-link">
           <span class="ml-2">{{ item.label }}</span>
       </a>
   </ng-container>
+  <ng-template #noLink>
+    <div class="p-menuitem-link">
+        <span class="ml-2">{{ item.label }}</span>
+        <span class="pi pi-fw pi-angle-down ml-2"></span>
+    </div>
+</ng-template>
   </ng-template>
 </p-menubar>

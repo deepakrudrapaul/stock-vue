@@ -22,6 +22,7 @@
     "chart.js": "^4.4.3",
     "luxon": "^3.3.0",
     "primeflex": "^3.3.1",
+    "primeicons": "^7.0.0",
     "primeng": "^17.18.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

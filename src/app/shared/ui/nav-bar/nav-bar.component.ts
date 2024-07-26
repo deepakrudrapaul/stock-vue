@@ -4,12 +4,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { MenubarModule } from 'primeng/menubar';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-nav-bar',
   standalone: true,
   templateUrl:'./nav-bar.component.html',
-  imports: [RouterModule, FormsModule, MenubarModule, ButtonModule],
+  imports: [RouterModule, FormsModule, MenubarModule, ButtonModule, CommonModule],
   styles: [],
 })
 export class NavBarComponent {
@@ -23,25 +24,31 @@ export class NavBarComponent {
 
   items = [
     {
-        label: 'Home',
-        icon: 'pi pi-home',
-        path: ''
+      label: 'Home',
+      route: ''
     },
     {
-        label: 'OI Scan',
-        icon: 'pi pi-star',
-        path: this.appConstants.Routes.OI_SCAN
+      label: 'Futures',
+      items: [
+        {
+          label: 'OI Scan',
+          route: this.appConstants.Routes.OI_SCAN
+        },
+        {
+          label: 'OI Buildup',
+          route: this.appConstants.Routes.OI_BUILD_UP
+        },
+      ]
     },
     {
-      label: 'OI Buildup',
-      icon: 'pi pi-star',
-      path: this.appConstants.Routes.OI_BUILD_UP
-    },
-    {
-      label: 'OI Diff',
-      icon: 'pi pi-star',
-      path: this.appConstants.Routes.OI_DIFF
-    },
+      label: 'Options',
+      items: [
+        {
+          label: 'OI Diff',
+          route: this.appConstants.Routes.OI_DIFF
+        }
+      ]
+    }
 
   ]
 }
