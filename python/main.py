@@ -22,8 +22,6 @@ SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
 logger = logging.getLogger(__name__)
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-holidays = np.array(['2023-01-26', '2023-03-07', '2023-03-30', '2023-04-04', '2023-04-07', '2023-04-14', '2023-05-01',
-                    '2023-06-28', '2023-08-15', '2023-09-19', '2023-10-02', '2023-10-24', '2023-11-14', '2023-11-27', '2023-12-25'])
 
 is_data_download_success = True;
 
@@ -38,8 +36,7 @@ def get_previous_weekday_date(date):
         date -= one_day
 
     str_date = date.isoformat()
-    if str_date in holidays:
-        date = get_previous_weekday_date(date)
+    date = get_previous_weekday_date(date)
     return date
 
 
@@ -49,8 +46,6 @@ today = date.today()
 currentMonth = now.strftime("%b").upper()
 currentYear = str(now.year)
 str_today = today.isoformat()
-if str_today in holidays:
-    today = get_previous_weekday_date(today)
 
 previous_day = get_previous_weekday_date(today)
 
@@ -236,8 +231,8 @@ def run_app(should_download):
     # current_date = '2024-07-25'
 
     if(should_download):
-        # todays_date = today.strftime("%d-%m-%Y")
-        todays_date = "25-07-2024"
+        todays_date = today.strftime("%d-%m-%Y")
+        # todays_date = "25-07-2024"
         download_and_save_bhavcopy(todays_date)
 
     if is_data_download_success:
