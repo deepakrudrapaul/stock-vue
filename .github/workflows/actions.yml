@@ -2,7 +2,7 @@ name: Fetch Bhavcopy
 
 on: 
   schedule:
-    - cron:  '30 16 * * 1-5'
+    - cron:  '36 16 * * 1-5'
 jobs:
   build:
     runs-on: ubuntu-latest
