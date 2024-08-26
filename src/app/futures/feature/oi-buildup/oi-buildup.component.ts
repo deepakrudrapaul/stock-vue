@@ -5,6 +5,7 @@ import { FuturesService } from '../../data-access/futures.service';
 import { getPreviousWeekdayDate } from 'src/app/shared/utils/utils';
 import { TableComponent } from 'src/app/shared/ui/table/table.component';
 import { AppConstants } from 'src/app/shared/utils/app-constants';
+import { Stock } from 'src/app/shared/model/stock.model';
 
 
 @Component({
@@ -18,17 +19,14 @@ export class OiBuildupComponent implements OnInit {
   futureService = inject(FuturesService);
 
   currentDate = DateTime.now().toFormat("yyyy-MM-dd");
-  isLoading: boolean = false;
+  isLoading = false;
   columns = AppConstants.COLUMNS;
 
 
-  currentStock:any = null;
-  longBuildupList:any = [];
-  shortBuildupList:any = [];
+  currentStock = '';
+  longBuildupList:Stock[] = [];
+  shortBuildupList:Stock[] = [];
   
-
-  constructor() {}
-
   ngOnInit(): void {
     this.setCurrentDate();
     this.getLongBuildupStocks(this.currentDate);
@@ -46,7 +44,7 @@ export class OiBuildupComponent implements OnInit {
   getLongBuildupStocks(date:string){
     this.isLoading = true;
     this.futureService.getLongBuildupStocks(date)?.then((res) => {
-      this.longBuildupList = res.data as any;
+      this.longBuildupList = res.data as Stock[];
       this.isLoading = false;
     });
   }
@@ -54,7 +52,7 @@ export class OiBuildupComponent implements OnInit {
   getShortBuildupStocks(date:string){
     this.isLoading = true;
     this.futureService.getShortBuildupStocks(date)?.then((res) => {
-      this.shortBuildupList = res.data as any;
+      this.shortBuildupList = res.data as Stock[];
       this.isLoading = false;
     });
   }

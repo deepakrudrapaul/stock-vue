@@ -6,45 +6,25 @@ import { HomeService } from '../data-access/home.service';
 import { TableComponent } from 'src/app/shared/ui/table/table.component';
 import { getPreviousWeekdayDate } from 'src/app/shared/utils/utils';
 import { AppConstants } from 'src/app/shared/utils/app-constants';
-
-
-interface OiData {
-  symbol: string,
-  close: number,
-  changeOi: number,
-  timestamp: string,
-  openInterest: number,
-  lotsTraded: number,
-
-}
+import { Stock } from 'src/app/shared/model/stock.model';
 
 @Component({
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableComponent
-  ],
+  imports: [CommonModule, FormsModule, TableComponent],
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
-  styleUrls: ['./home-page.component.scss']
+  styleUrls: ['./home-page.component.scss'],
 })
 export class HomePageComponent implements OnInit {
-
-
   dataService = inject(HomeService);
 
-  date:any;
-  currentDate = DateTime.now().toFormat("yyyy-MM-dd");
+  currentDate = DateTime.now().toFormat('yyyy-MM-dd');
   columns = AppConstants.COLUMNS;
-  
-  oiLosersList:any[] = [];
-  oiGainersList:any[] = [];
-  indexOiList:any[] = [];
-  isLoading: boolean = false;
 
-
-  constructor() {}
+  oiLosersList: Stock[] = [];
+  oiGainersList: Stock[] = [];
+  indexOiList: Stock[] = [];
+  isLoading = false;
 
   ngOnInit(): void {
     this.setCurrentDate();
@@ -53,57 +33,44 @@ export class HomePageComponent implements OnInit {
     this.getIndexOiData();
   }
 
-
-
   setCurrentDate() {
-    if(DateTime.now().hour < 18) {
-      this.currentDate = DateTime.fromJSDate(getPreviousWeekdayDate()).toFormat("yyyy-MM-dd"); 
+    if (DateTime.now().hour < 18) {
+      this.currentDate = DateTime.fromJSDate(getPreviousWeekdayDate()).toFormat(
+        'yyyy-MM-dd'
+      );
     }
   }
 
   getLastTradingDate() {
-    if(DateTime.now().weekday > 5) {
-      const date  = getPreviousWeekdayDate();
-      this.currentDate = DateTime.fromJSDate(date).toFormat("yyyy-MM-dd");
+    if (DateTime.now().weekday > 5) {
+      const date = getPreviousWeekdayDate();
+      this.currentDate = DateTime.fromJSDate(date).toFormat('yyyy-MM-dd');
     }
   }
 
   async getOiGainersData() {
     this.isLoading = true;
-    try{
-      const res:any =  await this.dataService.getOiGainersData(this.currentDate);
+    this.dataService.getOiGainersData(this.currentDate)?.then((res) => {
       this.isLoading = false;
-      this.oiGainersList = res.data;
-    } catch(error:any) {
-      this.isLoading = false;
-      alert(error?.message);
-    }
+      this.oiGainersList = res.data as Stock[];
+    });
   }
-
 
   async getOiLosersData() {
     this.isLoading = true;
-    try{
-      const res:any =  await this.dataService.getOiLosersData(this.currentDate);
+    this.dataService.getOiLosersData(this.currentDate)?.then((res) => {
       this.isLoading = false;
-      this.oiLosersList = res.data;
-    } catch(error:any) {
-      this.isLoading = false;
-      alert(error?.message);
-    }
+      this.oiLosersList = res.data as Stock[];
+    });
   }
 
   async getIndexOiData() {
     this.isLoading = true;
-    try{
-      const res:any =  await this.dataService.getIndexOiData('NIFTY', this.currentDate);
-      this.isLoading = false;
-      this.indexOiList = res.data;
-    } catch(error:any) {
-      this.isLoading = false;
-      alert(error?.message);
-    }
+    await this.dataService
+      .getIndexOiData('NIFTY', this.currentDate)
+      ?.then((res) => {
+        this.isLoading = false;
+        this.indexOiList = res.data as Stock[];
+      });
   }
-
-
 }

@@ -10,4 +10,5 @@
         <p-calendar styleClass="w-15rem" [(ngModel)]="currentDate" (ngModelChange)="onDateChange($event, currentStock)" placeholder="Enter Date" />
     </div>
     <app-table [isLoading]="isLoading" [list]="oiStockList" [columns]="columns"></app-table>
+    <div>{{store.stocks() | json}}</div>
 </section>
