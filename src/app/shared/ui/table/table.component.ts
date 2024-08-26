@@ -5,6 +5,8 @@ import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SkeletonModule } from 'primeng/skeleton';
+import { Stock } from 'src/app/shared/model/stock.model';
+import { OpenInterest } from '../../model/open-interest';
 
 
 interface Column {
@@ -21,8 +23,8 @@ interface Column {
 })
 export class TableComponent {
   @Input() title!:string;
-  @Input() list: any[] = [];
-  @Input() columns: any[] = [];
-  @Input() isLoading: boolean = false;
+  @Input() list: Stock[] | OpenInterest[] = [];
+  @Input() columns: Column[] = [];
+  @Input() isLoading = false;
 
 }

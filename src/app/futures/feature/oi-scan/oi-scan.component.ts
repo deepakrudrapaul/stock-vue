@@ -8,11 +8,15 @@ import { TableComponent } from 'src/app/shared/ui/table/table.component';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { AppConstants } from 'src/app/shared/utils/app-constants';
+import { futuresStore } from '../../store/futures.store';
+import { Stock } from '../../../shared/model/stock.model';
+import { Column } from 'src/app/shared/model/column.mode';
 
 
 @Component({
   selector: 'app-oi-scan',
   standalone: true,
+  providers:[futuresStore],
   imports: [CommonModule, TableComponent, SpinnerComponent, FormsModule, DropdownModule, CalendarModule],
   templateUrl: './oi-scan.component.html',
   styleUrls: ['./oi-scan.component.scss']
@@ -20,40 +24,45 @@ import { AppConstants } from 'src/app/shared/utils/app-constants';
 export class OiScanComponent implements OnInit {
 
   futureService = inject(FuturesService);
+  readonly store = inject(futuresStore);
 
   currentDate = new Date();
-  isLoading: boolean = false;
+  isLoading = false;
 
-  columns = AppConstants.COLUMNS;
+  columns:Column[] = AppConstants.COLUMNS;
 
-  currentStock:any = null;
+  currentStock = '';
   stockList = ["AUBANK", "INDUSINDBK", "HDFCLIFE", "GODREJPROP", "EICHERMOT", "TVSMOTOR", "SBICARD", "ESCORTS", "WHIRLPOOL", "DIXON", "DABUR", "APOLLOHOSP", "CANBK", "ABFRL", "POWERGRID", "M&MFIN", "NAVINFLUOR", "DLF", "AXISBANK", "CHAMBLFERT", "BAJAJFINSV", "CUB", "PNB", "IRCTC", "BANKNIFTY", "KOTAKBANK", "DEEPAKNTR", "ASTRAL", "ADANIENT", "RBLBANK", "INDIAMART", "POLYCAB", "HINDALCO", "JUBLFOOD", "BALKRISIND", "ICICIBANK", "MFSL", "SBIN", "TATAMOTORS", "ABCAPITAL", "ABB", "ASIANPAINT", "VOLTAS", "BAJFINANCE", "MUTHOOTFIN", "OBEROIRLTY", "AUROPHARMA", "RAIN", "BOSCHLTD", "ONGC", "FEDERALBNK", "HDFC", "TORNTPOWER", "PEL", "CONCOR", "SRF", "ADANIPORTS", "BANKBARODA", "MARUTI", "BATAINDIA", "ACC", "TATACHEM", "ITC", "L&TFH", "GMRINFRA", "HDFCBANK", "HDFCAMC", "RELIANCE", "HAVELLS", "ASHOKLEY", "MRF", "JSWSTEEL", "SBILIFE", "HINDUNILVR", "UBL", "DALBHARAT", "IDFCFIRSTB", "IGL", "TATACOMM", "AARTIIND", "BHEL", "JINDALSTEL", "BIOCON", "MANAPPURAM", "IDFC", "TATACONSUM", "NESTLEIND", "ALKEM", "PIDILITIND", "BEL", "NIFTY", "CHOLAFIN", "INDIGO", "BAJAJ-AUTO", "EXIDEIND", "VEDL", "APOLLOTYRE", "ATUL", "PIIND", "COROMANDEL", "GNFC", "TITAN", "ICICIPRULI", "FSL", "TATASTEEL", "MARICO", "TRENT", "BRITANNIA", "DELTACORP", "ZYDUSLIFE", "HAL", "M&M", "SIEMENS", "CIPLA", "PAGEIND", "CANFINHOME", "GLENMARK", "OFSS", "METROPOLIS", "IBULHSGFIN", "ULTRACEMCO", "JKCEMENT", "ICICIGI", "UPL", "HINDCOPPER", "TATAPOWER", "GAIL", "ABBOTINDIA", "GUJGASLTD", "COLPAL", "CROMPTON", "LALPATHLAB", "PVR", "BHARTIARTL", "MCDOWELL-N", "DRREDDY", "IEX", "BHARATFORG", "MGL", "TORNTPHARM", "INTELLECT", "CUMMINSIND", "SHRIRAMFIN", "GODREJCP", "HONAUT", "MOTHERSON", "INDHOTEL", "IPCALAB", "SYNGENE", "AMBUJACEM", "LICHSGFIN", "DIVISLAB", "COFORGE", "BERGEPAINT", "GRASIM", "MCX", "COALINDIA", "NAUKRI", "WIPRO", "IOC", "LTTS", "SHREECEM", "LUPIN", "HEROMOTOCO", "SUNTV", "LT", "SUNPHARMA", "NATIONALUM", "GRANULES", "SAIL", "RAMCOCEM", "BPCL", "INDUSTOWER", "NTPC", "RECLTD", "TCS", "ZEEL", "PETRONET", "NMDC", "INDIACEM", "HCLTECH", "TECHM", "BANDHANBNK", "HINDPETRO", "BALRAMCHIN", "IDEA", "BSOFT", "PFC", "MPHASIS", "INFY", "LAURUSLABS", "PERSISTENT", "LTIM"]
-  oiStockList:any = [];
+  oiStockList:Stock[] = [];
   
-
-  constructor() {}
 
   ngOnInit(): void {
     this.stockList.sort();
     this.stockList.unshift(...['NIFTY', 'BANKNIFTY']);
-    this.getStockOiData(this.currentStock, DateTime.fromJSDate(this.currentDate).toFormat("yyyy-MM-dd"));
+    this.loadStocks().then(res => {
+      console.log({res})
+    })
   }
 
-  onStockChange(value:any, currentDate: any) {
+  onStockChange(value:string, currentDate: Date) {
     this.getStockOiData(value ? value : "", DateTime.fromJSDate(currentDate).toFormat("yyyy-MM-dd"));
   }
 
-  onDateChange(value:any, currentStock:any) {
+  onDateChange(value:Date, currentStock:string) {
     this.getStockOiData(currentStock, DateTime.fromJSDate(value).toFormat("yyyy-MM-dd"));
   }
 
 
-  getStockOiData(value:any, currentDate: any){
+  getStockOiData(value:string, currentDate: string){
     this.isLoading = true;
     this.futureService.getStockOiData(value, currentDate)?.then((res) => {
-      this.oiStockList = res.data as any;
+      this.oiStockList = res.data as Stock[];
       this.isLoading = false;
     });
+  }
+
+  async loadStocks() {
+    await this.store.loadAll();
   }
 
 
