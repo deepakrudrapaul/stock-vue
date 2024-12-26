@@ -1,9 +1,11 @@
 
 
 <section class="m-3 py-3">
-    <app-table [title]="'Index'" [isLoading]="isLoading" [list]="indexOiList" [columns]="columns"></app-table>
+    <app-table [title]="'Index'" [isLoading]="indexResource.isLoading()" [list]="indexData()" [columns]="columns"></app-table>
     <div class="columns-2 my-3">
-      <app-table [title]="'OI Gainers'" [isLoading]="isLoading" [list]="oiGainersList" [columns]="columns"></app-table>
-      <app-table [title]="'OI Losers'" [isLoading]="isLoading" [list]="oiLosersList" [columns]="columns"></app-table>
+      <app-table [title]="'OI Gainers'" [isLoading]="oiGainerResource.isLoading()" [list]="oiGainers()" [columns]="columns"></app-table>
+      <app-table [title]="'OI Losers'" [isLoading]="oiLoserResouce.isLoading()" [list]="oiLosers()" [columns]="columns"></app-table>
+    </div>
+    <div>
     </div>
 </section>

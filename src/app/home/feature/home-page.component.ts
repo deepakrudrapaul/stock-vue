@@ -1,4 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  resource,
+  signal,
+  Signal,
+} from '@angular/core';
 import { DateTime } from 'luxon';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,102 +16,47 @@ import { getPreviousWeekdayDate } from 'src/app/shared/utils/utils';
 import { AppConstants } from 'src/app/shared/utils/app-constants';
 
 
-interface OiData {
-  symbol: string,
-  close: number,
-  changeOi: number,
-  timestamp: string,
-  openInterest: number,
-  lotsTraded: number,
-
-}
-
 @Component({
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableComponent
-  ],
+  imports: [CommonModule, FormsModule, TableComponent],
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
-  styleUrls: ['./home-page.component.scss']
+  styleUrls: ['./home-page.component.scss'],
 })
-export class HomePageComponent implements OnInit {
-
-
+export class HomePageComponent {
   dataService = inject(HomeService);
-
-  date:any;
-  currentDate = DateTime.now().toFormat("yyyy-MM-dd");
+  currentDate = signal(this.getCurrentDate());
   columns = AppConstants.COLUMNS;
-  
-  oiLosersList:any[] = [];
-  oiGainersList:any[] = [];
-  indexOiList:any[] = [];
-  isLoading: boolean = false;
 
+  indexResource = resource({
+    request: () => ({ symbol: 'NIFTY', date: this.currentDate() }),
+    loader: ({ request }) =>
+      this.dataService.getIndexOiData(request.symbol, request.date),
+  });
 
-  constructor() {}
+  oiGainerResource = resource({
+    request: () => this.currentDate(),
+    loader: ({ request }) => this.dataService.getOiGainersData(request),
+  });
 
-  ngOnInit(): void {
-    this.setCurrentDate();
-    this.getOiGainersData();
-    this.getOiLosersData();
-    this.getIndexOiData();
-  }
+  oiLoserResouce = resource({
+    request: () => this.currentDate(),
+    loader: ({ request }) => this.dataService.getOiLosersData(request),
+  });
 
+  oiGainers = computed(() => this.oiGainerResource.value()?.data || []);
+  oiLosers = computed(() => this.oiLoserResouce.value()?.data || []);
+  indexData = computed(() => this.indexResource.value()?.data || []);
 
-
-  setCurrentDate() {
-    if(DateTime.now().hour < 18) {
-      this.currentDate = DateTime.fromJSDate(getPreviousWeekdayDate()).toFormat("yyyy-MM-dd"); 
+  getCurrentDate() {
+    if (DateTime.now().weekday > 5) {
+      const date = getPreviousWeekdayDate();
+      return DateTime.fromJSDate(date).toFormat('yyyy-MM-dd');
+    } else if (DateTime.now().hour < 23) {
+      return DateTime.fromJSDate(getPreviousWeekdayDate()).toFormat(
+        'yyyy-MM-dd'
+      );
+    } else {
+      return DateTime.now().toFormat('yyyy-MM-dd');
     }
   }
-
-  getLastTradingDate() {
-    if(DateTime.now().weekday > 5) {
-      const date  = getPreviousWeekdayDate();
-      this.currentDate = DateTime.fromJSDate(date).toFormat("yyyy-MM-dd");
-    }
-  }
-
-  async getOiGainersData() {
-    this.isLoading = true;
-    try{
-      const res:any =  await this.dataService.getOiGainersData(this.currentDate);
-      this.isLoading = false;
-      this.oiGainersList = res.data;
-    } catch(error:any) {
-      this.isLoading = false;
-      alert(error?.message);
-    }
-  }
-
-
-  async getOiLosersData() {
-    this.isLoading = true;
-    try{
-      const res:any =  await this.dataService.getOiLosersData(this.currentDate);
-      this.isLoading = false;
-      this.oiLosersList = res.data;
-    } catch(error:any) {
-      this.isLoading = false;
-      alert(error?.message);
-    }
-  }
-
-  async getIndexOiData() {
-    this.isLoading = true;
-    try{
-      const res:any =  await this.dataService.getIndexOiData('NIFTY', this.currentDate);
-      this.isLoading = false;
-      this.indexOiList = res.data;
-    } catch(error:any) {
-      this.isLoading = false;
-      alert(error?.message);
-    }
-  }
-
-
 }

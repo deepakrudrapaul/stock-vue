@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { DateTime } from 'luxon';
 import { FuturesService } from '../../data-access/futures.service';
 import { FormsModule } from '@angular/forms';
-import { SpinnerComponent } from 'src/app/shared/ui/spinner/spinner.component';
 import { TableComponent } from 'src/app/shared/ui/table/table.component';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
@@ -11,11 +10,10 @@ import { AppConstants } from 'src/app/shared/utils/app-constants';
 
 
 @Component({
-  selector: 'app-oi-scan',
-  standalone: true,
-  imports: [CommonModule, TableComponent, SpinnerComponent, FormsModule, DropdownModule, CalendarModule],
-  templateUrl: './oi-scan.component.html',
-  styleUrls: ['./oi-scan.component.scss']
+    selector: 'app-oi-scan',
+    imports: [CommonModule, TableComponent, FormsModule, DropdownModule, CalendarModule],
+    templateUrl: './oi-scan.component.html',
+    styleUrls: ['./oi-scan.component.scss'],
 })
 export class OiScanComponent implements OnInit {
 

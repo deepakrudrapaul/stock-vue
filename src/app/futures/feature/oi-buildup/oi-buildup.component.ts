@@ -8,11 +8,10 @@ import { AppConstants } from 'src/app/shared/utils/app-constants';
 
 
 @Component({
-  selector: 'app-oi-buildup',
-  standalone: true,
-  imports: [CommonModule, TableComponent],
-  templateUrl: './oi-buildup.component.html',
-  styleUrls: ['./oi-buildup.component.scss']
+    selector: 'app-oi-buildup',
+    imports: [CommonModule, TableComponent],
+    templateUrl: './oi-buildup.component.html',
+    styleUrls: ['./oi-buildup.component.scss'],
 })
 export class OiBuildupComponent implements OnInit {
   futureService = inject(FuturesService);

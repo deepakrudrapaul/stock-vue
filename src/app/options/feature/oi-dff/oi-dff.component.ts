@@ -12,11 +12,10 @@ import { BehaviorSubject, interval, Subject, Subscription, takeUntil, takeWhile,
 
 
 @Component({
-  selector: 'app-oi-dff',
-  standalone: true,
-  imports: [TableComponent, ChartModule, CalendarModule, CommonModule, FormsModule, ToggleButtonModule],
-  templateUrl: './oi-dff.component.html',
-  styleUrl: './oi-dff.component.scss'
+    selector: 'app-oi-dff',
+    imports: [TableComponent, ChartModule, CalendarModule, CommonModule, FormsModule, ToggleButtonModule],
+    templateUrl: './oi-dff.component.html',
+    styleUrl: './oi-dff.component.scss'
 })
 export class OiDffComponent implements OnInit {
 

@@ -1,22 +1,19 @@
-import { Component, inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component } from '@angular/core';
+import { NavBarComponent } from './shared/ui/nav-bar/nav-bar.component';
+import { RouterOutlet } from '@angular/router';
 
 
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    imports: [
+      RouterOutlet,
+      NavBarComponent
+    ]
 })
-
 export class AppComponent {
-
-  document: Document = inject(DOCUMENT);
-
-
-  onThemeChange(value:Boolean) {
-    this.document.querySelector('html')?.setAttribute('data-theme', value ? 'dark' : 'light');
-  }
 
 
 }

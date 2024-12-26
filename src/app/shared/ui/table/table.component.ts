@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SpinnerComponent } from '../spinner/spinner.component';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -13,11 +12,10 @@ interface Column {
   dataType: string
 }
 @Component({
-  selector: 'app-table',
-  standalone: true,
-  imports: [CommonModule, SpinnerComponent, TableModule, CardModule, ProgressSpinnerModule, SkeletonModule],
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.scss']
+    selector: 'app-table',
+    imports: [CommonModule, TableModule, CardModule, ProgressSpinnerModule, SkeletonModule],
+    templateUrl: './table.component.html',
+    styleUrls: ['./table.component.scss']
 })
 export class TableComponent {
   @Input() title!:string;

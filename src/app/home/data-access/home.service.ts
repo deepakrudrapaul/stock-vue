@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, resource } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from 'src/environments/environment.development';
 
@@ -14,6 +14,8 @@ export class HomeService {
     this.supabase = new SupabaseClient(this.baseUrl, this.apiKey);
   }
 
+  
+
   getOiGainersData(date: string) {
     return this.supabase
       ?.from('openInterest')
@@ -21,7 +23,7 @@ export class HomeService {
       .filter('timestamp', 'eq', date)
       .gte('oneDayOiChange', 5)
       .order('oneDayOiChange', { ascending: false })
-      .limit(5);
+      .limit(5) as unknown as Promise<any>;
   }
 
   getOiLosersData(date: string) {
@@ -31,7 +33,7 @@ export class HomeService {
       .filter('timestamp', 'eq', date)
       .lte('oneDayOiChange', -5)
       .order('oneDayOiChange', { ascending: true })
-      .limit(5);
+      .limit(5) as unknown as Promise<any>;
   }
 
   getIndexOiData(symbol: string, date: string) {
@@ -39,7 +41,7 @@ export class HomeService {
       ?.from('openInterest')
       .select('*')
       .like('symbol', `%${symbol}%`)
-      .eq('timestamp', date);
+      .eq('timestamp', date) as unknown as Promise<any>;
   }
 
   getStockOiData(symbol: string) {
